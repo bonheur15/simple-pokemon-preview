@@ -6,3 +6,4 @@ import PokemonFlipGame from "./game";
 export default function GomePage() {
   return <PokemonFlipGame />;
 }
+export const dynamic = "force-dynamic";

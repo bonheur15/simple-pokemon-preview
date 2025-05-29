@@ -2,14 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button"; // Assuming this path is correct
-import { Input } from "@/components/ui/input"; // You'll need an Input component
-import { ThemeToggle } from "@/components/theme-toggle"; // Assuming this path
-import Navbar from "@/components/navbar"; // Assuming this path
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
+import Navbar from "@/components/navbar";
 import { useSpToken } from "socketpush-web";
 import { sendEvent, useEvent } from "./helper";
 
-// Props for your event functions (replace with actual types if available)
 interface EventFunctions {
   useSpToken: () => string | null;
   useEvent: (callback: (event: string, data: string) => void) => void;
@@ -26,7 +25,7 @@ interface Card extends Pokemon {
   isFlipped: boolean;
   revealedBy: "me" | "opponent" | null;
   revealTimestamp: number | null;
-  isInteractionPoint?: boolean; // To highlight the card that ended the game
+  isInteractionPoint?: boolean;
 }
 
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -67,11 +66,11 @@ const PokemonFlipGame: React.FC = () => {
   }, [generatedMyToken]);
 
   const initializeOrResetGame = useCallback(() => {
-    if (initialPokemons.length === 0) return; // Wait for pokemons to be fetched
+    if (initialPokemons.length === 0) return;
 
     const gameCards = shuffleArray(initialPokemons).map((p, index) => ({
       ...p,
-      id: `${p.name}`, // Ensure unique ID for each card instance
+      id: `${p.name}`,
       isFlipped: false,
       revealedBy: null,
       revealTimestamp: null,
@@ -158,7 +157,7 @@ const PokemonFlipGame: React.FC = () => {
     if (cardIndex === -1) return;
 
     const targetCard = cards[cardIndex];
-    if (targetCard.isFlipped) return; // Already flipped
+    if (targetCard.isFlipped) return;
 
     const now = Date.now();
     let newMyScore = myScore;
@@ -209,19 +208,17 @@ const PokemonFlipGame: React.FC = () => {
           const cardIndex = cards.findIndex((c) => c.id === cardId);
           if (cardIndex === -1) return;
 
-          let currentCards = [...cards]; // Operate on a copy for updates
+          let currentCards = [...cards];
           let targetCard = currentCards[cardIndex];
           let newMyScoreL = myScore;
           let newOpponentScoreL = opponentScore;
 
           if (targetCard.isFlipped) {
-            // I already flipped this card
             if (targetCard.revealedBy === "me" && targetCard.revealTimestamp) {
-              // Ensure it was me and timestamp exists
               let result = "";
               if (
                 Math.abs(targetCard.revealTimestamp - opponentTimestamp) <=
-                15000 * 4
+                15000
               ) {
                 result = "🤝 TIE! Same card picked within 15 seconds. 🤝";
               } else {
@@ -268,7 +265,7 @@ const PokemonFlipGame: React.FC = () => {
             }
           }
         } else if (event === "GAME_ENDED") {
-          if (gameState === "gameOver") return; // Avoid redundant updates
+          if (gameState === "gameOver") return;
           const { reason, cardId } = parsedData;
           setGameState("gameOver");
           setGameResult(reason);
@@ -281,7 +278,6 @@ const PokemonFlipGame: React.FC = () => {
             );
           }
         } else if (event === "RESET_GAME_REQUEST") {
-          // Optional: Add a confirmation step here if desired
           setStatusMessage(
             "Opponent wants to play again! Initializing new game..."
           );
@@ -309,8 +305,6 @@ const PokemonFlipGame: React.FC = () => {
     if (friendToken && myToken) {
       setIsConnected(true);
       setStatusMessage("Connected! Initializing game...");
-      // Optionally send a PING or CONNECTED event to friend to confirm channel works
-      // sendEvent(friendToken, 'PLAYER_CONNECTED_PING', JSON.stringify({ sender: myToken }));
     } else {
       setStatusMessage(
         "Please ensure your token is generated and friend's token is entered."
@@ -322,7 +316,7 @@ const PokemonFlipGame: React.FC = () => {
     if (!friendToken) return;
     setStatusMessage("Requesting a new game with opponent...");
     sendEvent(friendToken, "RESET_GAME_REQUEST", JSON.stringify({}));
-    // initializeOrResetGame(); // Local reset will happen on confirmation or if opponent also requests
+    initializeOrResetGame();
   };
 
   if (!myToken && gameState === "setup") {
@@ -337,11 +331,6 @@ const PokemonFlipGame: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-800">
-      <Navbar /> {/* Assuming Navbar is self-contained */}
-      <div className="absolute top-4 right-28">
-        {" "}
-        <ThemeToggle />
-      </div>
       <main className="flex-grow p-4 md:p-6 lg:p-8">
         {gameState === "setup" && (
           <div className="flex flex-col items-center justify-center space-y-6 p-6 bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md mx-auto">
