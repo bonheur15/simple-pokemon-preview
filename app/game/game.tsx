@@ -71,7 +71,7 @@ const PokemonFlipGame: React.FC = () => {
 
     const gameCards = shuffleArray(initialPokemons).map((p, index) => ({
       ...p,
-      id: `${p.name}-${index}`, // Ensure unique ID for each card instance
+      id: `${p.name}`, // Ensure unique ID for each card instance
       isFlipped: false,
       revealedBy: null,
       revealTimestamp: null,
@@ -94,7 +94,7 @@ const PokemonFlipGame: React.FC = () => {
         const data = await response.json();
         const fetchedPokemons = data.results.map(
           (item: { url: string; name: string }, index: number) => ({
-            id: `${item.name}-${index}-${Date.now()}`, // More unique ID
+            id: `${item.name}`,
             src: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/${
               item.url.split("/")[6]
             }.svg`,
@@ -205,6 +205,7 @@ const PokemonFlipGame: React.FC = () => {
 
         if (event === "FLIP_CARD") {
           const { cardId, timestamp: opponentTimestamp } = parsedData;
+          console.log("Received flip card event:", cardId, opponentTimestamp);
           const cardIndex = cards.findIndex((c) => c.id === cardId);
           if (cardIndex === -1) return;
 
@@ -220,7 +221,7 @@ const PokemonFlipGame: React.FC = () => {
               let result = "";
               if (
                 Math.abs(targetCard.revealTimestamp - opponentTimestamp) <=
-                15000
+                15000 * 4
               ) {
                 result = "🤝 TIE! Same card picked within 15 seconds. 🤝";
               } else {
